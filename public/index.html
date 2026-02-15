@@ -459,14 +459,34 @@ function getName() {
 function createRoom() {
   const name = getName();
   if (!name) return;
+
+  if (!socket.connected) {
+    toast('Connessione in corso... Riprova tra un attimo.');
+    console.warn('⚠️ Socket not connected, cannot create room');
+    return;
+  }
+
+  console.log('📤 Emitting create_room:', name);
   socket.emit('create_room', name);
 }
 
 function joinRoom() {
   const name = getName();
   if (!name) return;
+
   const code = document.getElementById('room-code-input').value.trim().toUpperCase();
-  if (code.length !== 4) { toast('Codice stanza non valido!'); return; }
+  if (code.length !== 4) {
+    toast('Codice stanza non valido!');
+    return;
+  }
+
+  if (!socket.connected) {
+    toast('Connessione in corso... Riprova tra un attimo.');
+    console.warn('⚠️ Socket not connected, cannot join room');
+    return;
+  }
+
+  console.log('📤 Emitting join_room:', { code, name });
   socket.emit('join_room', { code, name });
 }
 
@@ -558,7 +578,28 @@ function resetGame() {
 }
 
 // ---- SOCKET EVENTS ----
-socket.on('connect', () => { myId = socket.id; });
+socket.on('connect', () => {
+  myId = socket.id;
+  console.log('✅ Connected to server');
+});
+
+socket.on('connect_error', (error) => {
+  console.error('❌ Connection error:', error);
+  toast('Errore di connessione al server! Riprova...');
+});
+
+socket.on('disconnect', (reason) => {
+  console.warn('⚠️ Disconnected:', reason);
+  if (reason === 'io server disconnect') {
+    socket.connect();  // Manually reconnect if server kicked us
+  }
+  toast('Connessione persa. Riconnessione...');
+});
+
+socket.on('reconnect', (attemptNumber) => {
+  console.log('🔄 Reconnected after', attemptNumber, 'attempts');
+  toast('Riconnesso al server!');
+});
 
 socket.on('room_created', ({ code, players }) => {
   roomCode = code;

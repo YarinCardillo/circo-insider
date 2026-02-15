@@ -29,6 +29,10 @@ if (fs.existsSync(`${certPath}/fullchain.pem`)) {
 }
 
 const io = new Server(server, {
+  cors: {
+    origin: "*",  // Allow all origins (party game, local network)
+    methods: ["GET", "POST"]
+  },
   pingInterval: 25000,
   pingTimeout: 60000
 });
@@ -130,46 +134,94 @@ io.on('connection', (socket) => {
   let playerId = null;
 
   socket.on('create_room', (name) => {
-    const code = generateRoomCode();
-    playerId = socket.id;
-    rooms[code] = {
-      host: playerId,
-      players: {
-        [playerId]: { name, score: 0, role: null }
-      },
-      state: 'lobby', // lobby, reveal, guessing, discussion, voting, results
-      round: 0,
-      totalRounds: 5,
-      usedWords: [],
-      currentRound: {
-        word: null,
-        presentatore: null,
-        infiltrati: [],
-        artisti: [],
-        votes: {},
-        wordGuessed: false
-      },
-      settings: {
-        guessTime: 300, // 5 min
-        discussTime: 90  // 1.5 min
+    try {
+      // Validate input
+      if (!name || typeof name !== 'string') {
+        return socket.emit('error_msg', 'Nome non valido!');
       }
-    };
-    currentRoom = code;
-    socket.join(code);
-    socket.emit('room_created', { code, players: getPlayerList(code) });
+
+      const trimmedName = name.trim();
+      if (trimmedName.length === 0 || trimmedName.length > 16) {
+        return socket.emit('error_msg', 'Nome deve essere 1-16 caratteri!');
+      }
+
+      const code = generateRoomCode();
+      playerId = socket.id;
+
+      rooms[code] = {
+        host: playerId,
+        players: {
+          [playerId]: { name: trimmedName, score: 0, role: null }
+        },
+        state: 'lobby', // lobby, reveal, guessing, discussion, voting, results
+        round: 0,
+        totalRounds: 5,
+        usedWords: [],
+        currentRound: {
+          word: null,
+          presentatore: null,
+          infiltrati: [],
+          artisti: [],
+          votes: {},
+          wordGuessed: false
+        },
+        settings: {
+          guessTime: 300, // 5 min
+          discussTime: 90  // 1.5 min
+        }
+      };
+
+      currentRoom = code;
+      socket.join(code);
+      socket.emit('room_created', { code, players: getPlayerList(code) });
+
+      console.log(`✅ Room ${code} created by ${trimmedName}`);
+    } catch (error) {
+      console.error('❌ Error creating room:', error);
+      socket.emit('error_msg', 'Errore nella creazione della stanza!');
+    }
   });
 
   socket.on('join_room', ({ code, name }) => {
-    const room = rooms[code];
-    if (!room) return socket.emit('error_msg', 'Stanza non trovata!');
-    if (room.state !== 'lobby') return socket.emit('error_msg', 'Partita gia iniziata!');
+    try {
+      // Validate code
+      if (!code || typeof code !== 'string' || code.length !== 4) {
+        return socket.emit('error_msg', 'Codice stanza non valido!');
+      }
 
-    playerId = socket.id;
-    room.players[playerId] = { name, score: 0, role: null };
-    currentRoom = code;
-    socket.join(code);
-    socket.emit('room_joined', { code, players: getPlayerList(code), isHost: false });
-    io.to(code).emit('player_list', getPlayerList(code));
+      // Validate name
+      if (!name || typeof name !== 'string') {
+        return socket.emit('error_msg', 'Nome non valido!');
+      }
+
+      const trimmedName = name.trim();
+      if (trimmedName.length === 0 || trimmedName.length > 16) {
+        return socket.emit('error_msg', 'Nome deve essere 1-16 caratteri!');
+      }
+
+      const upperCode = code.toUpperCase();
+      const room = rooms[upperCode];
+
+      if (!room) {
+        return socket.emit('error_msg', 'Stanza non trovata!');
+      }
+
+      if (room.state !== 'lobby') {
+        return socket.emit('error_msg', 'Partita già iniziata!');
+      }
+
+      playerId = socket.id;
+      room.players[playerId] = { name: trimmedName, score: 0, role: null };
+      currentRoom = upperCode;
+      socket.join(upperCode);
+      socket.emit('room_joined', { code: upperCode, players: getPlayerList(upperCode), isHost: false });
+      io.to(upperCode).emit('player_list', getPlayerList(upperCode));
+
+      console.log(`✅ ${trimmedName} joined room ${upperCode}`);
+    } catch (error) {
+      console.error('❌ Error joining room:', error);
+      socket.emit('error_msg', 'Errore nell\'entrare nella stanza!');
+    }
   });
 
   socket.on('start_round', () => {
