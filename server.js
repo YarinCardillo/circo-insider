@@ -42,9 +42,21 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 if (isProduction) {
   // Serve Vite build in production
-  app.use(express.static(path.join(__dirname, 'dist')));
+  app.use(express.static(path.join(__dirname, 'dist'), {
+    setHeaders: (res, filepath) => {
+      // No cache for HTML files - force fresh fetch
+      if (filepath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      }
+    }
+  }));
   // SPA fallback - only for routes without file extensions (excludes /assets/*.js, *.css, etc.)
   app.get(/^\/[^.]*$/, (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
   console.log('Serving React build from dist/');
