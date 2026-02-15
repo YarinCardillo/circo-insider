@@ -1,0 +1,51 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 20px;
+}
+
+.voteGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+  margin: 12px 0;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.voteOption {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px 10px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.voteOption:active {
+  transform: scale(0.95);
+}
+
+.voteOption.selected {
+  border-color: var(--red);
+  background: rgba(239, 68, 68, 0.2);
+  color: #FCA5A5;
+}
+
+.voteOption.voted {
+  opacity: 0.5;
+  pointer-events: none;
+}

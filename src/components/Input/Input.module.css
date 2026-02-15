@@ -1,0 +1,33 @@
+.input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--gold);
+  color: var(--cream);
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.1em;
+  font-weight: 600;
+  padding: 16px 18px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  outline: none;
+  margin: 8px 0;
+  min-height: 52px;
+  -webkit-appearance: none;
+}
+
+.input::placeholder {
+  color: rgba(254, 243, 199, 0.4);
+}
+
+@media (max-width: 400px) {
+  .input {
+    font-size: 1em;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .input {
+    font-size: 16px; /* Prevent zoom on focus in iOS Safari */
+  }
+}

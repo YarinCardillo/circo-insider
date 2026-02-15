@@ -1,0 +1,19 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 20px;
+}
+
+.wordReveal {
+  font-family: 'Boogaloo', cursive;
+  font-size: 2.2em;
+  color: var(--gold);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 2px solid var(--gold);
+  margin: 10px 0;
+}

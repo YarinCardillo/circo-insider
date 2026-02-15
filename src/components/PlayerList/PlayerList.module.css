@@ -1,0 +1,39 @@
+.playerList {
+  list-style: none;
+  width: 100%;
+  max-width: 360px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 10px 0;
+}
+
+.playerList li {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 10px 16px;
+  margin: 4px 0;
+  border-radius: 10px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95em;
+}
+
+.hostBadge {
+  background: var(--gold);
+  color: var(--dark);
+  font-size: 0.7em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.scoreBadge {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--gold-light);
+  font-size: 0.8em;
+  padding: 2px 10px;
+  border-radius: 6px;
+  margin-left: 6px;
+}

@@ -1,0 +1,30 @@
+.timerContainer {
+  text-align: center;
+  margin: 16px 0;
+}
+
+.timerDisplay {
+  font-family: 'Boogaloo', cursive;
+  font-size: 4em;
+  color: var(--gold);
+}
+
+.timerDisplay.urgent {
+  color: #EF4444;
+  animation: pulse 0.5s infinite alternate;
+}
+
+.timerLabel {
+  font-size: 0.9em;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}

@@ -1,0 +1,81 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100dvh;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.resultBox {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 360px;
+  margin: 8px 0;
+  text-align: center;
+}
+
+.resultOutcome {
+  font-family: 'Boogaloo', cursive;
+  font-size: 1.8em;
+  margin: 8px 0;
+}
+
+.resultOutcome.caught {
+  color: var(--green);
+}
+
+.resultOutcome.escaped {
+  color: #EF4444;
+}
+
+.resultDetail {
+  font-size: 0.95em;
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+.scoreTable {
+  width: 100%;
+  max-width: 360px;
+  margin: 8px 0;
+}
+
+.scoreRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 14px;
+  margin: 3px 0;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.scoreRow:nth-child(2) {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.scoreRow:nth-child(3) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.scoreRow:nth-child(4) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pts {
+  color: var(--gold-light);
+  font-family: 'Boogaloo', cursive;
+  font-size: 1.1em;
+}
+
+.tallyRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.85em;
+  opacity: 0.8;
+}

@@ -46,6 +46,9 @@ echo ">> Setup applicazione..."
 cd /opt/circo-insider
 npm install
 
+echo ">> Building React app..."
+npm run build
+
 # 6. Kill old instances
 echo ">> Fermo vecchie istanze..."
 pkill -f "node server.js" 2>/dev/null || true
@@ -53,7 +56,7 @@ sleep 1
 
 # 7. Start with HTTPS
 echo ">> Avvio server HTTPS..."
-DOMAIN="$DOMAIN" PORT=443 nohup node server.js > /var/log/circo-insider.log 2>&1 &
+DOMAIN="$DOMAIN" PORT=443 NODE_ENV=production nohup node server.js > /var/log/circo-insider.log 2>&1 &
 
 sleep 2
 

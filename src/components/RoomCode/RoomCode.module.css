@@ -1,0 +1,20 @@
+.roomCode {
+  font-family: 'Boogaloo', cursive;
+  font-size: 3em;
+  color: var(--gold);
+  letter-spacing: 8px;
+  text-shadow: 2px 2px 0 var(--red-dark);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 30px;
+  border-radius: 12px;
+  border: 2px dashed var(--gold);
+  margin: 10px 0;
+}
+
+@media (max-width: 400px) {
+  .roomCode {
+    font-size: 2.5em;
+    letter-spacing: 6px;
+    padding: 8px 20px;
+  }
+}

@@ -7,7 +7,12 @@
       "Bash(node server.js:*)",
       "Bash(lsof:*)",
       "Bash(xargs:*)",
-      "Bash(PORT=3000 node server.js:*)"
+      "Bash(PORT=3000 node server.js:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run start:dev:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }

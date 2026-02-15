@@ -1,0 +1,80 @@
+.debugOpenBtn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: #0f0;
+  color: #000;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9em;
+  cursor: pointer;
+  z-index: 10000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  min-width: 100px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.debugOpenBtn:active {
+  transform: scale(0.95);
+}
+
+.debugPanel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.98);
+  color: #0f0;
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.debugHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #0f0;
+  margin-bottom: 8px;
+}
+
+.debugCloseBtn {
+  background: #f00;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.debugCloseBtn:active {
+  transform: scale(0.95);
+}
+
+.debugLogs {
+  flex: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  padding: 10px;
+  background: rgba(0, 255, 0, 0.05);
+  border-radius: 4px;
+}
+
+.debugLogs > div {
+  margin: 4px 0;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+}

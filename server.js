@@ -37,7 +37,21 @@ const io = new Server(server, {
   pingTimeout: 60000
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve React build in production, vanilla JS in development
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  // Serve Vite build in production
+  app.use(express.static(path.join(__dirname, 'dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+  console.log('Serving React build from dist/');
+} else {
+  // Serve vanilla JS in development (fallback)
+  app.use(express.static(path.join(__dirname, 'public')));
+  console.log('Serving vanilla JS from public/ (development mode)');
+}
 
 // ---- WORD LIST ----
 const WORDS = [
