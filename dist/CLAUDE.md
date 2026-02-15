@@ -7,5 +7,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #3004 | 9:04 PM | 🔵 | Vite Production Build Successfully Generated in dist/ Directory | ~449 |
+| #2932 | 8:14 PM | ⚖️ | React + Vite Migration Plan to Fix Safari Mobile Button Issues | ~748 |
+| #2917 | 8:00 PM | 🔵 | Event Listeners Already Added - Investigating Why Buttons Don't Work | ~514 |
 </claude-mem-context>

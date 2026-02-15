@@ -35,7 +35,7 @@ export function RoleRevealScreen() {
       return 'Rispondi SI/NO alle domande. Non rivelare la parola!';
     }
     if (role === 'infiltrato') {
-      return 'Conosci la parola. Guida il gruppo senza farti scoprire!';
+      return 'Conosci la parola. Depista e sabota senza farti scoprire!';
     }
     return 'Fai domande per indovinare la parola. Trova l\'Infiltrato!';
   };
