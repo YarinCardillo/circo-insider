@@ -7,7 +7,6 @@ import { DiscussionScreen } from './screens/DiscussionScreen/DiscussionScreen';
 import { VotingScreen } from './screens/VotingScreen/VotingScreen';
 import { ResultsScreen } from './screens/ResultsScreen/ResultsScreen';
 import { Toast } from './components/Toast/Toast';
-import { DebugPanel } from './components/DebugPanel/DebugPanel';
 
 export default function App() {
   const { currentScreen, toast } = useSocketContext();
@@ -23,7 +22,6 @@ export default function App() {
       {currentScreen === 'results' && <ResultsScreen />}
 
       <Toast message={toast.message} show={toast.show} />
-      <DebugPanel />
     </>
   );
 }
