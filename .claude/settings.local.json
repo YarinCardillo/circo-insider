@@ -4,7 +4,10 @@
       "Bash(npm ls:*)",
       "Bash(node --version:*)",
       "Bash(npm --version:*)",
-      "Bash(node server.js:*)"
+      "Bash(node server.js:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs:*)",
+      "Bash(PORT=3000 node server.js:*)"
     ]
   }
 }
