@@ -49,20 +49,22 @@ input[type="text"] {
   font-family: 'Quicksand', sans-serif;
   font-size: 1.1em;
   font-weight: 600;
-  padding: 14px 18px;
+  padding: 16px 18px;
   border-radius: 12px;
   width: 100%;
   max-width: 320px;
   text-align: center;
   outline: none;
   margin: 8px 0;
+  min-height: 52px; /* Better for mobile */
+  -webkit-appearance: none; /* Remove iOS styling */
 }
 input::placeholder { color: rgba(254,243,199,0.4); }
 
 .btn {
   font-family: 'Boogaloo', cursive;
   font-size: 1.3em;
-  padding: 14px 32px;
+  padding: 16px 32px;
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -71,6 +73,8 @@ input::placeholder { color: rgba(254,243,199,0.4); }
   margin: 6px 0;
   transition: transform 0.1s, opacity 0.1s;
   letter-spacing: 0.5px;
+  min-height: 52px; /* Better for touch on mobile */
+  touch-action: manipulation; /* Prevent double-tap zoom */
 }
 .btn:active { transform: scale(0.96); }
 .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--dark); }
@@ -78,7 +82,7 @@ input::placeholder { color: rgba(254,243,199,0.4); }
 .btn-green { background: linear-gradient(135deg, var(--green), #15803D); color: white; }
 .btn-blue { background: linear-gradient(135deg, var(--blue), #1D4ED8); color: white; }
 .btn-purple { background: linear-gradient(135deg, var(--purple), #6D28D9); color: white; }
-.btn-small { font-size: 1em; padding: 10px 20px; max-width: 240px; }
+.btn-small { font-size: 1em; padding: 12px 20px; max-width: 240px; min-height: 44px; }
 .btn:disabled { opacity: 0.4; pointer-events: none; }
 
 .room-code {
@@ -184,6 +188,22 @@ input::placeholder { color: rgba(254,243,199,0.4); }
 
 @keyframes pulse { from { opacity:1; } to { opacity:0.5; } }
 
+/* Mobile optimizations */
+@media (max-width: 400px) {
+  h1 { font-size: 2em; }
+  h2 { font-size: 1.4em; }
+  .btn { font-size: 1.2em; padding: 14px 24px; }
+  .room-code { font-size: 2.5em; letter-spacing: 6px; padding: 8px 20px; }
+  input[type="text"] { font-size: 1em; }
+}
+
+/* Improve mobile Safari compatibility */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific */
+  .screen { min-height: -webkit-fill-available; }
+  input[type="text"] { font-size: 16px; /* Prevent zoom on focus */ }
+}
+
 /* Voting */
 .vote-grid {
   display: grid;
@@ -199,12 +219,16 @@ input::placeholder { color: rgba(254,243,199,0.4); }
   background: rgba(255,255,255,0.08);
   border: 2px solid rgba(255,255,255,0.15);
   border-radius: 12px;
-  padding: 14px 10px;
+  padding: 16px 10px;
   text-align: center;
   font-weight: 700;
   font-size: 0.95em;
   cursor: pointer;
   transition: all 0.15s;
+  min-height: 60px; /* Better touch target */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .vote-option:active { transform: scale(0.95); }
 .vote-option.selected {
@@ -271,19 +295,24 @@ input::placeholder { color: rgba(254,243,199,0.4); }
 /* Toast */
 .toast {
   position: fixed;
-  bottom: 30px;
+  bottom: 70px;
   left: 50%;
-  transform: translateX(-50%) translateY(100px);
+  transform: translateX(-50%) translateY(150px);
   background: var(--red);
   color: white;
-  padding: 12px 24px;
-  border-radius: 12px;
+  padding: 16px 28px;
+  border-radius: 14px;
   font-weight: 700;
-  font-size: 0.9em;
-  z-index: 999;
+  font-size: 1em;
+  z-index: 9999;
   transition: transform 0.3s ease;
   text-align: center;
   max-width: 90%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
@@ -416,25 +445,15 @@ input::placeholder { color: rgba(254,243,199,0.4); }
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- DEBUG PANEL (mobile troubleshooting) -->
-<div id="debug-panel" style="position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.95); color:#0f0; font-family:monospace; font-size:11px; padding:10px; max-height:180px; overflow-y:auto; z-index:9999; display:none; border-bottom:3px solid #0f0;">
-  <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;">
-    <span id="debug-status" style="font-weight:bold;">Status</span>
-    <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#f00; color:#fff; border:none; padding:4px 12px; font-size:11px; border-radius:4px; cursor:pointer;">Close</button>
+<!-- DEBUG PANEL (mobile-optimized) -->
+<div id="debug-panel" style="position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.98); color:#0f0; font-family:monospace; font-size:14px; padding:12px; max-height:250px; overflow-y:auto; z-index:99999; display:none; border-bottom:4px solid #0f0; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+    <span id="debug-status" style="font-weight:bold; font-size:16px;">⚪ Status</span>
+    <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#f00; color:#fff; border:none; padding:8px 16px; font-size:14px; border-radius:6px; cursor:pointer; font-weight:bold; min-width:60px; min-height:40px;">X</button>
   </div>
-  <pre id="debug-logs" style="margin:0; font-size:10px; white-space:pre-wrap; word-wrap:break-word;"></pre>
+  <pre id="debug-logs" style="margin:0; font-size:12px; white-space:pre-wrap; word-wrap:break-word; line-height:1.4;"></pre>
 </div>
-<button onclick="document.getElementById('debug-panel').style.display='block'" style="position:fixed; bottom:10px; right:10px; background:rgba(0,255,0,0.3); color:#0f0; border:2px solid #0f0; padding:6px 12px; font-size:11px; z-index:9998; border-radius:6px; font-weight:bold; cursor:pointer;">DEBUG</button>
-
-<!-- DEBUG PANEL (mobile troubleshooting) -->
-<div id="debug-panel" style="position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.9); color:#0f0; font-family:monospace; font-size:10px; padding:8px; max-height:120px; overflow-y:auto; z-index:9999; display:none; border-bottom:2px solid #0f0;">
-  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-    <span id="debug-status">🔴 Disconnected</span>
-    <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#f00; color:#fff; border:none; padding:2px 8px; font-size:10px;">Close</button>
-  </div>
-  <div id="debug-logs" style="font-size:9px;"></div>
-</div>
-<button onclick="document.getElementById('debug-panel').style.display='block'" style="position:fixed; bottom:10px; right:10px; background:rgba(0,255,0,0.3); color:#0f0; border:2px solid #0f0; padding:4px 8px; font-size:10px; z-index:9998; border-radius:4px;">DEBUG</button>
+<button onclick="document.getElementById('debug-panel').style.display='block'" style="position:fixed; bottom:80px; right:15px; background:#0f0; color:#000; border:3px solid #000; padding:10px 16px; font-size:14px; z-index:9998; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.3); min-width:80px; min-height:50px;">DEBUG</button>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
