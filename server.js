@@ -175,9 +175,9 @@ io.on('connection', (socket) => {
       socket.join(code);
       socket.emit('room_created', { code, players: getPlayerList(code) });
 
-      console.log(`✅ Room ${code} created by ${trimmedName}`);
+      console.log(`[OK] Room ${code} created by ${trimmedName}`);
     } catch (error) {
-      console.error('❌ Error creating room:', error);
+      console.error('[ERROR] Error creating room:', error);
       socket.emit('error_msg', 'Errore nella creazione della stanza!');
     }
   });
@@ -217,9 +217,9 @@ io.on('connection', (socket) => {
       socket.emit('room_joined', { code: upperCode, players: getPlayerList(upperCode), isHost: false });
       io.to(upperCode).emit('player_list', getPlayerList(upperCode));
 
-      console.log(`✅ ${trimmedName} joined room ${upperCode}`);
+      console.log(`[OK] ${trimmedName} joined room ${upperCode}`);
     } catch (error) {
-      console.error('❌ Error joining room:', error);
+      console.error('[ERROR] Error joining room:', error);
       socket.emit('error_msg', 'Errore nell\'entrare nella stanza!');
     }
   });
@@ -346,6 +346,22 @@ io.on('connection', (socket) => {
     resolveVotes(room);
   });
 
+  socket.on('force_voting', () => {
+    const room = rooms[currentRoom];
+    if (!room || socket.id !== room.host || room.state !== 'discussion') return;
+
+    // Transition to voting immediately
+    room.state = 'voting';
+    const votableList = Object.entries(room.players)
+      .filter(([id]) => id !== room.currentRound.presentatore)
+      .map(([id, p]) => ({ id, name: p.name }));
+    io.to(currentRoom).emit('phase_change', {
+      phase: 'voting',
+      candidates: votableList,
+      duration: 60
+    });
+  });
+
   socket.on('back_to_lobby', () => {
     const room = rooms[currentRoom];
     if (!room || socket.id !== room.host) return;
@@ -374,6 +390,34 @@ io.on('connection', (socket) => {
       room.players[id].role = null;
     }
     io.to(currentRoom).emit('game_reset', { players: getPlayerList(currentRoom) });
+  });
+
+  socket.on('leave_room', () => {
+    if (!currentRoom || !rooms[currentRoom]) return;
+
+    const room = rooms[currentRoom];
+    const wasHost = (socket.id === room.host);
+
+    // Remove player
+    delete room.players[playerId];
+
+    // If room is empty, delete it
+    if (Object.keys(room.players).length === 0) {
+      delete rooms[currentRoom];
+      console.log(`[OK] Room ${currentRoom} deleted (empty)`);
+    } else {
+      // If player was host, assign new host
+      if (wasHost) {
+        room.host = Object.keys(room.players)[0];
+        io.to(currentRoom).emit('new_host', room.host);
+      }
+      // Update player list for remaining players
+      io.to(currentRoom).emit('player_list', getPlayerList(currentRoom));
+    }
+
+    socket.leave(currentRoom);
+    currentRoom = null;
+    playerId = null;
   });
 
   socket.on('disconnect', () => {

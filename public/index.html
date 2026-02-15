@@ -317,6 +317,7 @@ input::placeholder { color: rgba(254,243,199,0.4); }
   <div class="spacer"></div>
   <button class="btn btn-gold" id="btn-start" style="display:none" onclick="startRound()">Inizia Round</button>
   <button class="btn btn-red btn-small" id="btn-reset" style="display:none" onclick="resetGame()">Reset Punteggi</button>
+  <button class="btn btn-red btn-small" onclick="leaveRoom()">Esci dalla Stanza</button>
 </div>
 
 <!-- ROLE REVEAL -->
@@ -360,7 +361,8 @@ input::placeholder { color: rgba(254,243,199,0.4); }
     <div class="timer-display" id="discuss-timer">1:30</div>
     <div class="timer-label">Discussione</div>
   </div>
-  <p class="info-text">Il voto si apre automaticamente...</p>
+  <button class="btn btn-gold btn-small" id="btn-force-voting" style="display:none" onclick="forceVoting()">Apri Voto Subito</button>
+  <p class="info-text" id="discussion-auto-msg">Il voto si apre automaticamente...</p>
 </div>
 
 <!-- VOTING -->
@@ -462,11 +464,11 @@ function createRoom() {
 
   if (!socket.connected) {
     toast('Connessione in corso... Riprova tra un attimo.');
-    console.warn('⚠️ Socket not connected, cannot create room');
+    console.warn('[WARN] Socket not connected, cannot create room');
     return;
   }
 
-  console.log('📤 Emitting create_room:', name);
+  console.log('[SEND] create_room:', name);
   socket.emit('create_room', name);
 }
 
@@ -482,11 +484,11 @@ function joinRoom() {
 
   if (!socket.connected) {
     toast('Connessione in corso... Riprova tra un attimo.');
-    console.warn('⚠️ Socket not connected, cannot join room');
+    console.warn('[WARN] Socket not connected, cannot join room');
     return;
   }
 
-  console.log('📤 Emitting join_room:', { code, name });
+  console.log('[SEND] join_room:', { code, name });
   socket.emit('join_room', { code, name });
 }
 
@@ -567,6 +569,10 @@ function forceResults() {
   socket.emit('force_results');
 }
 
+function forceVoting() {
+  socket.emit('force_voting');
+}
+
 function backToLobby() {
   socket.emit('back_to_lobby');
 }
@@ -577,19 +583,29 @@ function resetGame() {
   }
 }
 
+function leaveRoom() {
+  if (confirm('Vuoi davvero uscire dalla stanza?')) {
+    socket.emit('leave_room');
+    roomCode = null;
+    isHost = false;
+    showScreen('home');
+    toast('Sei uscito dalla stanza');
+  }
+}
+
 // ---- SOCKET EVENTS ----
 socket.on('connect', () => {
   myId = socket.id;
-  console.log('✅ Connected to server');
+  console.log('[OK] Connected to server');
 });
 
 socket.on('connect_error', (error) => {
-  console.error('❌ Connection error:', error);
+  console.error('[ERROR] Connection error:', error);
   toast('Errore di connessione al server! Riprova...');
 });
 
 socket.on('disconnect', (reason) => {
-  console.warn('⚠️ Disconnected:', reason);
+  console.warn('[WARN] Disconnected:', reason);
   if (reason === 'io server disconnect') {
     socket.connect();  // Manually reconnect if server kicked us
   }
@@ -597,7 +613,7 @@ socket.on('disconnect', (reason) => {
 });
 
 socket.on('reconnect', (attemptNumber) => {
-  console.log('🔄 Reconnected after', attemptNumber, 'attempts');
+  console.log('[OK] Reconnected after', attemptNumber, 'attempts');
   toast('Riconnesso al server!');
 });
 
@@ -671,6 +687,8 @@ socket.on('phase_change', ({ phase, duration, word, candidates }) => {
   if (phase === 'discussion') {
     showScreen('discussion');
     document.getElementById('discussion-word').textContent = word;
+    document.getElementById('btn-force-voting').style.display = isHost ? 'block' : 'none';
+    document.getElementById('discussion-auto-msg').style.display = isHost ? 'none' : 'block';
     startTimer('discuss-timer', duration);
   }
 
