@@ -416,6 +416,26 @@ input::placeholder { color: rgba(254,243,199,0.4); }
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- DEBUG PANEL (mobile troubleshooting) -->
+<div id="debug-panel" style="position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.95); color:#0f0; font-family:monospace; font-size:11px; padding:10px; max-height:180px; overflow-y:auto; z-index:9999; display:none; border-bottom:3px solid #0f0;">
+  <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;">
+    <span id="debug-status" style="font-weight:bold;">Status</span>
+    <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#f00; color:#fff; border:none; padding:4px 12px; font-size:11px; border-radius:4px; cursor:pointer;">Close</button>
+  </div>
+  <pre id="debug-logs" style="margin:0; font-size:10px; white-space:pre-wrap; word-wrap:break-word;"></pre>
+</div>
+<button onclick="document.getElementById('debug-panel').style.display='block'" style="position:fixed; bottom:10px; right:10px; background:rgba(0,255,0,0.3); color:#0f0; border:2px solid #0f0; padding:6px 12px; font-size:11px; z-index:9998; border-radius:6px; font-weight:bold; cursor:pointer;">DEBUG</button>
+
+<!-- DEBUG PANEL (mobile troubleshooting) -->
+<div id="debug-panel" style="position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.9); color:#0f0; font-family:monospace; font-size:10px; padding:8px; max-height:120px; overflow-y:auto; z-index:9999; display:none; border-bottom:2px solid #0f0;">
+  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+    <span id="debug-status">🔴 Disconnected</span>
+    <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#f00; color:#fff; border:none; padding:2px 8px; font-size:10px;">Close</button>
+  </div>
+  <div id="debug-logs" style="font-size:9px;"></div>
+</div>
+<button onclick="document.getElementById('debug-panel').style.display='block'" style="position:fixed; bottom:10px; right:10px; background:rgba(0,255,0,0.3); color:#0f0; border:2px solid #0f0; padding:4px 8px; font-size:10px; z-index:9998; border-radius:4px;">DEBUG</button>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io({ reconnection: true, reconnectionAttempts: 10, reconnectionDelay: 2000 });
@@ -426,6 +446,29 @@ let isHost = false;
 let selectedVote = null;
 let hasVoted = false;
 let timerInterval = null;
+
+// Debug logger for mobile (safe DOM methods)
+const debugHistory = [];
+function debugLog(msg) {
+  const time = new Date().toLocaleTimeString();
+  const logMsg = '[' + time + '] ' + msg;
+  debugHistory.unshift(logMsg);
+  if (debugHistory.length > 10) debugHistory.pop();
+
+  const logs = document.getElementById('debug-logs');
+  if (logs) {
+    logs.textContent = debugHistory.join('\n');
+  }
+  console.log(msg);
+}
+
+function updateDebugStatus(status, color) {
+  const statusEl = document.getElementById('debug-status');
+  if (statusEl) {
+    statusEl.textContent = status;
+    statusEl.style.color = color;
+  }
+}
 
 // ---- URL PARAMS ----
 const params = new URLSearchParams(window.location.search);
@@ -459,16 +502,22 @@ function getName() {
 }
 
 function createRoom() {
+  debugLog('[BTN] Create room clicked');
   const name = getName();
-  if (!name) return;
-
-  if (!socket.connected) {
-    toast('Connessione in corso... Riprova tra un attimo.');
-    console.warn('[WARN] Socket not connected, cannot create room');
+  if (!name) {
+    debugLog('[WARN] No name');
     return;
   }
 
-  console.log('[SEND] create_room:', name);
+  debugLog('[CHK] connected=' + socket.connected + ' id=' + (socket.id ? socket.id.substring(0,8) : 'null'));
+
+  if (!socket.connected) {
+    toast('Connessione in corso... Riprova tra un attimo.');
+    debugLog('[BLOCK] Not connected');
+    return;
+  }
+
+  debugLog('[SEND] create_room: ' + name);
   socket.emit('create_room', name);
 }
 
@@ -596,28 +645,33 @@ function leaveRoom() {
 // ---- SOCKET EVENTS ----
 socket.on('connect', () => {
   myId = socket.id;
-  console.log('[OK] Connected to server');
+  debugLog('[OK] Connected, ID: ' + socket.id.substring(0, 8));
+  updateDebugStatus('🟢 Connected', '#0f0');
 });
 
 socket.on('connect_error', (error) => {
-  console.error('[ERROR] Connection error:', error);
+  debugLog('[ERROR] Conn error: ' + (error.message || error.toString()));
+  updateDebugStatus('🔴 Conn Error', '#f00');
   toast('Errore di connessione al server! Riprova...');
 });
 
 socket.on('disconnect', (reason) => {
-  console.warn('[WARN] Disconnected:', reason);
+  debugLog('[WARN] Disconnected: ' + reason);
+  updateDebugStatus('🟡 Disconnected', '#ff0');
   if (reason === 'io server disconnect') {
-    socket.connect();  // Manually reconnect if server kicked us
+    socket.connect();
   }
   toast('Connessione persa. Riconnessione...');
 });
 
 socket.on('reconnect', (attemptNumber) => {
-  console.log('[OK] Reconnected after', attemptNumber, 'attempts');
+  debugLog('[OK] Reconnected (attempt ' + attemptNumber + ')');
+  updateDebugStatus('🟢 Reconnected', '#0f0');
   toast('Riconnesso al server!');
 });
 
 socket.on('room_created', ({ code, players }) => {
+  debugLog('[RECV] room_created: ' + code);
   roomCode = code;
   isHost = true;
   showScreen('lobby');
@@ -625,6 +679,7 @@ socket.on('room_created', ({ code, players }) => {
 });
 
 socket.on('room_joined', ({ code, players, isHost: host }) => {
+  debugLog('[RECV] room_joined: ' + code);
   roomCode = code;
   isHost = host;
   showScreen('lobby');
@@ -637,10 +692,14 @@ socket.on('player_list', (players) => {
 
 socket.on('new_host', (hostId) => {
   isHost = (hostId === myId);
+  debugLog('[RECV] new_host: ' + (isHost ? 'you' : 'other'));
   toast(isHost ? 'Sei il nuovo host!' : '');
 });
 
-socket.on('error_msg', (msg) => toast(msg));
+socket.on('error_msg', (msg) => {
+  debugLog('[RECV] error: ' + msg);
+  toast(msg);
+});
 
 socket.on('role_assigned', ({ role, word, round, totalRounds }) => {
   showScreen('reveal');
