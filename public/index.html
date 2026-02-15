@@ -878,53 +878,95 @@ socket.on('game_reset', ({ players }) => {
   toast('Punteggi resettati!');
 });
 
-// Debug panel controls (proper event listeners for mobile)
-document.getElementById('debug-open-btn').addEventListener('click', function(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  document.getElementById('debug-panel').style.display = 'block';
-  debugLog('[UI] Debug panel opened');
-});
+// CRITICAL: Wait for DOM to be fully loaded before attaching event listeners
+// This ensures all elements exist before we try to attach listeners
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('[INIT] DOM loaded, attaching event listeners...');
 
-document.getElementById('debug-close-btn').addEventListener('click', function(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  document.getElementById('debug-panel').style.display = 'none';
-});
+  // Debug panel controls (proper event listeners for mobile)
+  const debugOpenBtn = document.getElementById('debug-open-btn');
+  const debugCloseBtn = document.getElementById('debug-close-btn');
 
-// ALL GAME BUTTONS - proper event listeners for Safari mobile compatibility
-document.getElementById('btn-create-room').addEventListener('click', createRoom);
-document.getElementById('btn-show-join').addEventListener('click', showJoin);
-document.getElementById('btn-join-room').addEventListener('click', joinRoom);
-document.getElementById('btn-start').addEventListener('click', startRound);
-document.getElementById('btn-reset').addEventListener('click', resetGame);
-document.getElementById('btn-leave-room').addEventListener('click', leaveRoom);
-document.getElementById('btn-word-guessed').addEventListener('click', wordGuessed);
-document.getElementById('btn-time-up').addEventListener('click', timeUp);
-document.getElementById('btn-force-voting').addEventListener('click', forceVoting);
-document.getElementById('btn-confirm-vote').addEventListener('click', confirmVote);
-document.getElementById('btn-force-results').addEventListener('click', forceResults);
-document.getElementById('btn-next-round').addEventListener('click', startRound);
-document.getElementById('btn-back-lobby').addEventListener('click', backToLobby);
+  if (debugOpenBtn) {
+    debugOpenBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById('debug-panel').style.display = 'block';
+      debugLog('[UI] Debug panel opened');
+    });
+    console.log('[INIT] Debug open button listener attached');
+  } else {
+    console.error('[ERROR] debug-open-btn NOT FOUND');
+  }
 
-// Enter key support for inputs
-document.getElementById('player-name').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    const joinVisible = document.getElementById('join-section').style.display !== 'none';
-    if (joinVisible) {
-      document.getElementById('room-code-input').focus();
+  if (debugCloseBtn) {
+    debugCloseBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById('debug-panel').style.display = 'none';
+    });
+    console.log('[INIT] Debug close button listener attached');
+  } else {
+    console.error('[ERROR] debug-close-btn NOT FOUND');
+  }
+
+  // ALL GAME BUTTONS - proper event listeners for Safari mobile compatibility
+  const buttonMappings = [
+    { id: 'btn-create-room', handler: createRoom },
+    { id: 'btn-show-join', handler: showJoin },
+    { id: 'btn-join-room', handler: joinRoom },
+    { id: 'btn-start', handler: startRound },
+    { id: 'btn-reset', handler: resetGame },
+    { id: 'btn-leave-room', handler: leaveRoom },
+    { id: 'btn-word-guessed', handler: wordGuessed },
+    { id: 'btn-time-up', handler: timeUp },
+    { id: 'btn-force-voting', handler: forceVoting },
+    { id: 'btn-confirm-vote', handler: confirmVote },
+    { id: 'btn-force-results', handler: forceResults },
+    { id: 'btn-next-round', handler: startRound },
+    { id: 'btn-back-lobby', handler: backToLobby }
+  ];
+
+  buttonMappings.forEach(({ id, handler }) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', handler);
+      console.log('[INIT] Listener attached:', id);
     } else {
-      createRoom();
+      console.error('[ERROR] Button NOT FOUND:', id);
     }
-  }
-});
+  });
 
-document.getElementById('room-code-input').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    joinRoom();
+  // Enter key support for inputs
+  const playerNameInput = document.getElementById('player-name');
+  if (playerNameInput) {
+    playerNameInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const joinVisible = document.getElementById('join-section').style.display !== 'none';
+        if (joinVisible) {
+          document.getElementById('room-code-input').focus();
+        } else {
+          createRoom();
+        }
+      }
+    });
+    console.log('[INIT] Player name Enter key listener attached');
   }
+
+  const roomCodeInput = document.getElementById('room-code-input');
+  if (roomCodeInput) {
+    roomCodeInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        joinRoom();
+      }
+    });
+    console.log('[INIT] Room code Enter key listener attached');
+  }
+
+  debugLog('[INIT] All event listeners attached successfully');
+  console.log('[INIT] Event listener setup complete');
 });
 
 // Prevent double-tap zoom (but NOT on debug button)
