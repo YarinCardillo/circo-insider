@@ -74,7 +74,7 @@ const WORDS = [
   // Varie divertenti
   'Bermuda', 'Bigfoot', 'UFO', 'Loch Ness', 'Area 51',
   'Kamasutra', 'Tinder', 'Hangover', 'Friendzone', 'Catfish',
-  'ASMR', 'Meme', 'TikTok', 'Ghosting', 'Red flag', 'Mary Cavallo'
+  'ASMR', 'Meme', 'TikTok', 'Ghosting', 'Red flag', 'Mary Cavallo',
   // Roba italiana
   'Sanremo', 'Grande Fratello', 'Fantacalcio', 'Aperitivo',
   'Spritz', 'Amaro', 'Grappa', 'Limoncello', 'Prosecco',
