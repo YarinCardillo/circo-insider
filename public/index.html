@@ -446,14 +446,14 @@ input::placeholder { color: rgba(254,243,199,0.4); }
 <div class="toast" id="toast"></div>
 
 <!-- DEBUG PANEL (mobile-optimized) -->
-<div id="debug-panel" style="position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.98); color:#0f0; font-family:monospace; font-size:14px; padding:12px; max-height:250px; overflow-y:auto; z-index:99999; display:none; border-bottom:4px solid #0f0; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
+<div id="debug-panel" style="position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.98); color:#0f0; font-family:monospace; font-size:14px; padding:12px; max-height:250px; overflow-y:auto; z-index:999999; display:none; border-bottom:4px solid #0f0; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
   <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
     <span id="debug-status" style="font-weight:bold; font-size:16px;">⚪ Status</span>
-    <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#f00; color:#fff; border:none; padding:8px 16px; font-size:14px; border-radius:6px; cursor:pointer; font-weight:bold; min-width:60px; min-height:40px;">X</button>
+    <button id="debug-close-btn" style="background:#f00; color:#fff; border:none; padding:10px 20px; font-size:16px; border-radius:8px; cursor:pointer; font-weight:bold; min-width:70px; min-height:50px;">CHIUDI</button>
   </div>
   <pre id="debug-logs" style="margin:0; font-size:12px; white-space:pre-wrap; word-wrap:break-word; line-height:1.4;"></pre>
 </div>
-<button onclick="document.getElementById('debug-panel').style.display='block'" style="position:fixed; bottom:80px; right:15px; background:#0f0; color:#000; border:3px solid #000; padding:10px 16px; font-size:14px; z-index:9998; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.3); min-width:80px; min-height:50px;">DEBUG</button>
+<button id="debug-open-btn" style="position:fixed; top:10px; right:10px; background:#0f0; color:#000; border:3px solid #000; padding:12px 20px; font-size:16px; z-index:999998; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.5); min-width:100px; min-height:60px; touch-action:manipulation;">DEBUG</button>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -878,8 +878,25 @@ socket.on('game_reset', ({ players }) => {
   toast('Punteggi resettati!');
 });
 
-// Prevent double-tap zoom
+// Debug panel controls (proper event listeners for mobile)
+document.getElementById('debug-open-btn').addEventListener('click', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('debug-panel').style.display = 'block';
+  debugLog('[UI] Debug panel opened');
+});
+
+document.getElementById('debug-close-btn').addEventListener('click', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('debug-panel').style.display = 'none';
+});
+
+// Prevent double-tap zoom (but NOT on debug button)
 document.addEventListener('touchend', (e) => {
+  if (e.target.id === 'debug-open-btn' || e.target.id === 'debug-close-btn') {
+    return; // Allow debug buttons to work
+  }
   if (e.target.tagName === 'BUTTON' || e.target.classList.contains('vote-option')) {
     e.preventDefault();
   }
